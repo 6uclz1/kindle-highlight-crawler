@@ -1,0 +1,91 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.pytest_cache
+.python-version
+.env
+venv/
+ENV/
+env/
+.venv/
+venv.bak/
+pip-wheel-metadata/
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dylib
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Logs and runtime files
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# Test reports
+coverage.xml
+htmlcov/
+.coverage
+.nox/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Playwright / browser data and reports
+playwright-report/
+test-results/
+trace.zip
+
+# Project-specific: Chrome/Chromium profile and large user data (repo root or nested)
+user_data/
+**/user_data/
+
+# Output files produced by the script
+highlights.csv
+**/highlights.csv
+
+# Python virtual environment in the project (repo root or nested)
+.venv/
+**/.venv/
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+credentials.json
+secrets.yml
+
+# Misc
+*.swp
+*~
+*.bak
+
+# Keep this file tracked
+!.gitignore
