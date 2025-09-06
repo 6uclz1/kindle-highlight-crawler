@@ -67,10 +67,6 @@ trace.zip
 user_data/
 **/user_data/
 
-# Output files produced by the script
-highlights.csv
-**/highlights.csv
-
 # Python virtual environment in the project (repo root or nested)
 .venv/
 **/.venv/
@@ -87,5 +83,4 @@ secrets.yml
 *~
 *.bak
 
-# Keep this file tracked
-!.gitignore
+_out/

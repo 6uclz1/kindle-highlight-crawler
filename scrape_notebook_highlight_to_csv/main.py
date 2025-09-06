@@ -244,7 +244,7 @@ async def wait_for_book_context(page, title: str, timeout=20000) -> bool:
         return s.strip()
 
     def token_list(s: str):
-        s2 = re.sub(r"[^\w\u3000-\u30FF\u4E00-\u9FFF\-]", " ", s)  # 英数＋日本語ブロックを残す
+        s2 = re.sub(r"[^\w\u3000-\u30FF\u4E00-\u9FFF- ]", " ", s)  # 英数＋日本語ブロックを残す
         toks = [t for t in re.split(r"\s+", s2) if len(t) >= 2]
         return toks
 
@@ -564,7 +564,7 @@ async def main(args):
             for attempt_ctx in range(3):
                 # 試行ごとに待機を増やす（0.5s, 1.0s, 1.5s）
                 await asyncio.sleep(0.5 * (attempt_ctx + 1))
-                # 非同期読み込みがあれば完了を待う（失敗しても無視）
+                # 非同期読み込みがあれば完了を待つ（失敗しても無視）
                 try:
                     await page.wait_for_load_state('networkidle', timeout=3000)
                 except Exception:
@@ -614,6 +614,6 @@ async def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Export Kindle highlights per book (scroll + click).")
     parser.add_argument("--headful", action="store_true", help="Open browser so you can login interactively.")
-    parser.add_argument("--output", "-o", default="highlights.csv", help="CSV output path")
+    parser.add_argument("--output", "-o", default="_out/highlights.csv", help="CSV output path")
     args = parser.parse_args()
     asyncio.run(main(args))

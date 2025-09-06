@@ -1,0 +1,13 @@
+
+[project]
+name = "kindle-highlight-crawler"
+version = "0.1.0"
+description = "A toolset to scrape Kindle highlights."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.13.5",
+    "playwright>=1.55.0",
+    "requests>=2.32.5",
+    "tqdm",
+]

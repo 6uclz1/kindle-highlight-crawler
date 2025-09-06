@@ -6,13 +6,19 @@
 > 目的: ローカル環境で自分の Kindle ハイライトをスクレイピングしてローカル CSV に保存するための補助ツール。
 
 
-## 主要ファイル
-- `export_kindle_highlights.py` — 左ペイン（書籍一覧）をスクロールして書籍をクリック、該当書籍のハイライトを抽出して CSV に保存するメインスクリプト（開発中のファイルです）。
-- `inspect_dom.py` — ノートブックページの DOM 構造を調べるデバッグ用スクリプト。ログイン後に手動で Enter を押して実行します。
-- `user_data/` — ブラウザのユーザーデータ（プロファイル）を置くディレクトリ。既に `.gitignore` により除外されています。
-- `highlights.csv` — 出力先の想定ファイル。既にリポジトリにある場合は上書きされることがあります。
-- `setup.sh` — 環境セットアップを自動化するシェルスクリプト（uv を使ったセットアップを想定）。
-- `pyproject.toml`, `uv.lock` — パッケージ仕様・ロックファイル。
+## プロジェクト構造
+各スクリプトは、その処理内容を示すディレクトリに分かれています。
+
+- `scrape-notebook-highlight-to-csv/`: KindleのノートブックからハイライトをCSV形式で抽出するスクリプト
+- `scrape-library-booklist-to-csv/`: Kindleライブラリから書籍一覧をCSV形式で抽出するスクリプト
+- `format-highlights-csv-to-json/`: ハイライトのCSVをJSON形式に変換するスクリプト
+- `format-highlights-csv-to-min-json/`: ハイライトのCSVを最小化されたJSON形式に変換するスクリプト
+- `debug-notebook-dom/`: ノートブックページのDOM構造を調査するためのデバッグ用スクript
+- `analyze-highlights-csv-to-report/`: ハイライトのCSVデータを分析し、レポートを生成するスクリプト
+- `user_data/`: ブラウザのユーザーデータ（プロファイル）を置くディレクトリ
+- `_out/`: 出力ファイルが保存されるディレクトリ
+- `setup.sh`: 環境セットアップを自動化するシェルスクリプト
+- `pyproject.toml`, `uv.lock`: パッケージ仕様・ロックファイル
 
 
 ## 前提・必要環境
@@ -32,32 +38,49 @@
 ```
 
 `setup.sh` は以下を行います（要 `uv`）：
-- uv プロジェクト作成（仮想環境等の初期化）
-- 依存パッケージの追加（playwright, beautifulsoup4, tqdm）
+- `pyproject.toml` に基づいて依存関係をインストール (`uv sync`)
 - Playwright のブラウザをインストール
 
 手動の場合の要点:
 - Python 環境を有効にする（venv など）
-- 依存をインストール: `pip install -r requirements.txt`（該当ファイルが無ければ pyproject の依存を参照）
-- Playwright のブラウザをインストール: `playwright install`
+- 依存をインストール: `uv sync`
+- Playwright のブラウザをインストール: `uv run playwright install`
 
 
 ## 実行例
-- ヘッドフル（ブラウザ表示）でスクリプトを動かす（ログイン操作を伴う想定）:
+各スクリプトは、プロジェクトのルートディレクトリから実行します。
 
-```bash
-uv run python export_kindle_highlights.py --headful --output highlights.csv
-```
+- **Kindleハイライトのエクスポート:**
+  ```bash
+  uv run python scrape-notebook-highlight-to-csv/main.py --headful --output _out/highlights.csv
+  ```
 
-- DOM 構造を調べるデバッグ:
+- **Kindleライブラリの書籍一覧をエクスポート:**
+  ```bash
+  uv run python scrape-library-booklist-to-csv/main.py
+  ```
 
-```bash
-uv run python inspect_dom.py
-# または
-python inspect_dom.py
-```
+- **CSVをJSONに変換:**
+  ```bash
+  uv run python format-highlights-csv-to-json/main.py
+  ```
 
-注: 上のコマンドは `uv` を使う想定です。`uv` を使わない場合は、仮想環境を有効にして `python export_kindle_highlights.py` のように実行してください。
+- **CSVを最小化されたJSONに変換:**
+  ```bash
+  uv run python format-highlights-csv-to-min-json/main.py
+  ```
+
+- **DOM構造の調査:**
+  ```bash
+  uv run python debug-notebook-dom/main.py
+  ```
+
+- **ハイライトデータのプロファイリング:**
+  ```bash
+  uv run python analyze-highlights-csv-to-report/main.py
+  ```
+
+注: 上のコマンドは `uv` を使う想定です。`uv` を使わない場合は、仮想環境を有効にして `python <スクリプトパス>` のように実行してください。
 
 
 ## 動作の流れ（大まか）
@@ -69,7 +92,7 @@ python inspect_dom.py
 
 
 ## 設計・開発メモ
-- `export_kindle_highlights.py` は非同期 Playwright コードで実装されています。SPA（Single Page Application）の遅延読み込みや、UI の微妙な DOM 変化に耐えるため、可視化→クリック→待機のロジックを持たせています。
+- `scrape-notebook-highlight-to-csv/main.py` は非同期 Playwright コードで実装されています。SPA（Single Page Application）の遅延読み込みや、UI の微妙な DOM 変化に耐えるため、可視化→クリック→待機のロジックを持たせています。
 - スクリプトはまだ開発中で、エッジケース（大量の書籍、遅延、要素の変化）で調整が必要です。
 
 
@@ -79,7 +102,7 @@ python inspect_dom.py
 
 
 ## トラブルシューティング
-- Playwright がブラウザを見つけない／起動しない: `playwright install` を実行してブラウザをインストールしてください。
+- Playwright がブラウザを見つけない／起動しない: `uv run playwright install` を実行してブラウザをインストールしてください。
 - ログインが必要なページで自動ログインが機能しない場合は、ヘッドフルモードで手動ログインしてから続行してください。
 - 権限エラーや profile 関連の競合が出た場合は、`user_data/` をクリアして再作成してください（個人データはバックアップしてから）。
 
