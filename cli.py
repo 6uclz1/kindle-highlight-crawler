@@ -11,8 +11,7 @@ argparseを利用してサブコマンドベースのインターフェースを
 - ハイライトCSVのJSON形式への変換 (`format-json`)
 - ハイライトCSVの分析とレポート生成 (`analyze`)
 - ノートブックページのDOM構造のデバッグ (`debug-dom`)
-
-各コマンドは、対応するディレクトリ内の `main.py` スクリプトを呼び出します。
+- Obsidianへのエクスポート (`export-to-obsidian`)
 """
 
 import argparse
@@ -29,6 +28,7 @@ sys.path.append(str(ROOT / 'scrape_library_booklist_to_csv'))
 sys.path.append(str(ROOT / 'format_highlights_csv_to_json'))
 sys.path.append(str(ROOT / 'analyze_highlights_csv_to_report'))
 sys.path.append(str(ROOT / 'debug_notebook_dom'))
+sys.path.append(str(ROOT / 'export_highlights_to_obsidian'))
 
 # --- メインスクリプトのインポート ---
 # 各スクリプトのmain関数を、別名でインポートします。
@@ -38,6 +38,7 @@ from scrape_library_booklist_to_csv import main as scrape_library_main
 from format_highlights_csv_to_json import main as format_json_main
 from analyze_highlights_csv_to_report import main as analyze_main
 from debug_notebook_dom import main as debug_dom_main
+from export_highlights_to_obsidian import main as export_to_obsidian_main
 
 
 def run_scrape_highlights(args: argparse.Namespace) -> None:
@@ -119,6 +120,21 @@ def run_debug_dom(args: argparse.Namespace) -> None:
     print("デバッグが完了しました。")
 
 
+def run_export_to_obsidian(args: argparse.Namespace) -> None:
+    """Obsidianへのエクスポートを実行します。
+
+    `export_highlights_to_obsidian` ディレクトリの `main` 関数を呼び出します。
+
+    Args:
+        args (argparse.Namespace): argparseによってパースされたコマンドライン引数。
+                                   `input` と `output` 属性を持ちます。
+                                   型: argparse.Namespace (名前空間)
+    """
+    print("Obsidianへのエクスポートを開始します...")
+    export_to_obsidian_main.export_to_obsidian(args.input, args.output)
+    print("エクスポートが完了しました。")
+
+
 def main() -> None:
     """CLIアプリケーションのエントリーポイント。
 
@@ -181,6 +197,24 @@ def main() -> None:
         description='開発者向け。KindleノートブックページのDOM構造をコンソールに出力し、セレクタの確認などに使用します。'
     )
     parser_debug_dom.set_defaults(func=run_debug_dom)
+
+    # --- `export-to-obsidian` コマンドの定義 ---
+    parser_export_to_obsidian = subparsers.add_parser(
+        'export-to-obsidian',
+        help='ハイライトをObsidian形式のMarkdownファイルにエクスポートします。',
+        description='書籍ごとにMarkdownファイルを作成し、ハイライトを書き出します。'
+    )
+    parser_export_to_obsidian.add_argument(
+        '--input',
+        default='_out/highlights.csv',
+        help='入力元のCSVファイルパス。 (デフォルト: _out/highlights.csv)'
+    )
+    parser_export_to_obsidian.add_argument(
+        '--output',
+        default='_out/obsidian',
+        help='出力先のディレクトリパス。 (デフォルト: _out/obsidian)'
+    )
+    parser_export_to_obsidian.set_defaults(func=run_export_to_obsidian)
 
     # --- 引数の解析と実行 ---
     args = parser.parse_args()

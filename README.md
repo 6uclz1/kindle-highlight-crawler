@@ -52,32 +52,32 @@
 
 - **Kindleハイライトのエクスポート:**
   ```bash
-  uv run python scrape-notebook-highlight-to-csv/main.py --headful --output _out/highlights.csv
+  uv run python scrape_notebook_highlight_to_csv/main.py --headful --output _out/highlights.csv
   ```
 
 - **Kindleライブラリの書籍一覧をエクスポート:**
   ```bash
-  uv run python scrape-library-booklist-to-csv/main.py
+  uv run python scrape_library_booklist_to_csv/main.py
   ```
 
 - **CSVをJSONに変換:**
   ```bash
-  uv run python format-highlights-csv-to-json/main.py
-  ```
-
-- **CSVを最小化されたJSONに変換:**
-  ```bash
-  uv run python format-highlights-csv-to-min-json/main.py
+  uv run python format_highlights_csv_to_json/main.py
   ```
 
 - **DOM構造の調査:**
   ```bash
-  uv run python debug-notebook-dom/main.py
+  uv run python debug_notebook_dom/main.py
   ```
 
 - **ハイライトデータのプロファイリング:**
   ```bash
-  uv run python analyze-highlights-csv-to-report/main.py
+  uv run python analyze_highlights_csv_to_report/main.py
+  ```
+
+- **Obsidian形式へのエクスポート:**
+  ```bash
+  uv run python export_highlights_to_obsidian/main.py
   ```
 
 注: 上のコマンドは `uv` を使う想定です。`uv` を使わない場合は、仮想環境を有効にして `python <スクリプトパス>` のように実行してください。

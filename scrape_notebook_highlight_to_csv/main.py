@@ -12,12 +12,23 @@ import os
 import re
 import time
 import unicodedata
+from dataclasses import dataclass
 from typing import List, Dict
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
 BASE_URL = "https://read.amazon.co.jp/notebook/"
 USER_DATA_DIR = "user_data"
 DEFAULT_TIMEOUT = 20000  # ms
+
+
+@dataclass
+class Highlight:
+    book: str
+    section: str
+    location: str
+    highlight: str
+    note: str
+    asin: str = ""
 
 def normalize_whitespace(s: str) -> str:
     return re.sub(r"\s+", " ", (s or "")).strip()
@@ -536,7 +547,8 @@ async def main(args):
             return
         writer = csv.writer(out_f)
         if write_header:
-            writer.writerow(["Book", "Section", "Location", "Highlight", "Note"]) 
+            # Add ASIN column and include it in rows
+            writer.writerow(["Book", "ASIN", "Section", "Location", "Highlight", "Note"]) 
             out_f.flush()
             try:
                 os.fsync(out_f.fileno())
@@ -586,24 +598,52 @@ async def main(args):
                 except Exception:
                     pass
                 continue
+            # ページ内の hidden ASIN 要素から ASIN を取得
+            asin_val = ""
+            try:
+                raw_asin = await page.locator("#kp-notebook-annotations-asin").get_attribute("value")
+                if raw_asin:
+                    asin_val = normalize_whitespace(raw_asin)
+            except Exception:
+                asin_val = ""
+
             items = await extract_annotations_for_current_book(page)
             print(f"  -> 抽出件数: {len(items)}")
-            # 一冊分を即時追記
+            # 一冊分を即時追記（Highlight dataclass を使って明示的に asin を含める）
             for it in items:
                 try:
-                    writer.writerow([title, it["section"], it["location"], it["highlight"], it["note"]])
+                    h = Highlight(book=title,
+                                  section=it.get("section", ""),
+                                  location=it.get("location", ""),
+                                  highlight=it.get("highlight", ""),
+                                  note=it.get("note", ""),
+                                  asin=asin_val)
+                    writer.writerow([h.book, h.asin, h.section, h.location, h.highlight, h.note])
                 except Exception:
                     # 保険: 文字列化して書き込む
-                    writer.writerow([str(title), str(it.get("section","")), str(it.get("location","")), str(it.get("highlight","")), str(it.get("note",""))])
+                    writer.writerow([str(title), str(asin_val), str(it.get("section","")), str(it.get("location","")), str(it.get("highlight","")), str(it.get("note",""))])
             out_f.flush()
             try:
                 os.fsync(out_f.fileno())
             except Exception:
                 pass
             seen.add(normalize_whitespace(title))
+            # 左一覧がまだ見えているなら毎回トップへ戻さない。5秒以内に
+            # "著者:" を含むアンカーが見つからなければトップへ遷移して復元を試みる。
             try:
-                await page.goto(BASE_URL)
-                await page.wait_for_selector("a", timeout=10000)
+                try:
+                    await page.wait_for_function(
+                        "() => Array.from(document.querySelectorAll('a')).some(a => (a.textContent||'').includes('著者:'))",
+                        timeout=5000,
+                    )
+                    # 5秒以内に左一覧が見つかった -> ナビゲーション不要
+                except Exception:
+                    # 見つからなかった場合はトップに戻して待機
+                    try:
+                        await page.goto(BASE_URL)
+                        await page.wait_for_selector("a", timeout=10000)
+                    except Exception:
+                        await asyncio.sleep(1.0)
             except Exception:
                 await asyncio.sleep(1.0)
 
