@@ -9,12 +9,13 @@
 ## プロジェクト構造
 各スクリプトは、その処理内容を示すディレクトリに分かれています。
 
-- `scrape-notebook-highlight-to-csv/`: KindleのノートブックからハイライトをCSV形式で抽出するスクリプト
-- `scrape-library-booklist-to-csv/`: Kindleライブラリから書籍一覧をCSV形式で抽出するスクリプト
-- `format-highlights-csv-to-json/`: ハイライトのCSVをJSON形式に変換するスクリプト
-- `format-highlights-csv-to-min-json/`: ハイライトのCSVを最小化されたJSON形式に変換するスクリプト
-- `debug-notebook-dom/`: ノートブックページのDOM構造を調査するためのデバッグ用スクript
-- `analyze-highlights-csv-to-report/`: ハイライトのCSVデータを分析し、レポートを生成するスクリプト
+- `scrape_notebook_highlight_to_csv/`: KindleのノートブックからハイライトをCSV形式で抽出するスクリプト
+- `scrape_library_booklist_to_csv/`: Kindleライブラリから書籍一覧をCSV形式で抽出するスクリプト
+- `format_highlights_csv_to_json/`: ハイライトのCSVをJSON形式に変換するスクript
+- `analyze_highlights_csv_to_report/`: ハイライトのCSVデータを分析し、レポートを生成するスクリプト
+- `export_highlights_to_obsidian/`: ハイライトをObsidianのMarkdown形式にエクスポートするスクリプト
+- `debug_notebook_dom/`: ノートブックページのDOM構造を調査するためのデバッグ用スクリプト
+- `cli.py`: 各スクリプトを統一的に実行するためのコマンドラインインターフェース
 - `user_data/`: ブラウザのユーザーデータ（プロファイル）を置くディレクトリ
 - `_out/`: 出力ファイルが保存されるディレクトリ
 - `setup.sh`: 環境セットアップを自動化するシェルスクリプト
@@ -48,39 +49,39 @@
 
 
 ## 実行例
-各スクリプトは、プロジェクトのルートディレクトリから実行します。
+`cli.py` を通じて各スクリプトを実行します。
 
 - **Kindleハイライトのエクスポート:**
   ```bash
-  uv run python scrape_notebook_highlight_to_csv/main.py --headful --output _out/highlights.csv
+  uv run python cli.py scrape-highlights --headful --output _out/highlights.csv
   ```
 
 - **Kindleライブラリの書籍一覧をエクスポート:**
   ```bash
-  uv run python scrape_library_booklist_to_csv/main.py
+  uv run python cli.py scrape-library
   ```
 
 - **CSVをJSONに変換:**
   ```bash
-  uv run python format_highlights_csv_to_json/main.py
+  uv run python cli.py format-json
   ```
 
-- **DOM構造の調査:**
+- **ハイライトデータの分析:**
   ```bash
-  uv run python debug_notebook_dom/main.py
-  ```
-
-- **ハイライトデータのプロファイリング:**
-  ```bash
-  uv run python analyze_highlights_csv_to_report/main.py
+  uv run python cli.py analyze
   ```
 
 - **Obsidian形式へのエクスポート:**
   ```bash
-  uv run python export_highlights_to_obsidian/main.py
+  uv run python cli.py export-to-obsidian
   ```
 
-注: 上のコマンドは `uv` を使う想定です。`uv` を使わない場合は、仮想環境を有効にして `python <スクリプトパス>` のように実行してください。
+- **DOM構造の調査:**
+  ```bash
+  uv run python cli.py debug-dom
+  ```
+
+注: 上のコマンドは `uv` を使う想定です。`uv` を使わない場合は、仮想環境を有効にして `python cli.py <コマンド>` のように実行してください。
 
 
 ## 動作の流れ（大まか）
